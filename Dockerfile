@@ -69,8 +69,7 @@ RUN pip3 uninstall numpy -y && pip3 install numpy==1.26.4
 
 # Go to /src
 RUN mkdir /root/src
-WORKDIR /root/src
-RUN cd /root
+WORKDIR /root
 
 # ros2 helpers
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
