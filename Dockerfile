@@ -39,8 +39,6 @@ RUN apt-get update && apt-get install -y v4l-utils
 RUN sudo apt-get install libgstrtspserver-1.0 libgstreamer1.0-dev -y
 RUN sudo apt install ros-humble-spacenav -y
 
-RUN colcon build && . install/setup.bash
-
 RUN sudo apt-get update
 
 RUN sudo apt install ros-$ROS_DISTRO-pcl* -y
