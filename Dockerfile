@@ -18,11 +18,7 @@ RUN apt-get update && apt-get install -y \
 
 # Initialize rosdep
 RUN rosdep update
-
-# Create a workspace directory
-WORKDIR /root/ros2_docker_ws
 RUN . /opt/ros/humble/setup.sh
-
 RUN echo "source /opt/ros/humble/setup.sh" >> ~/.bashrc
 
 RUN sudo apt install ros-humble-pcl* -y
@@ -43,7 +39,6 @@ RUN apt-get update && apt-get install -y v4l-utils
 RUN sudo apt-get install libgstrtspserver-1.0 libgstreamer1.0-dev -y
 RUN sudo apt install ros-humble-spacenav -y
 
-RUN cd /root/ros2_docker_ws 
 RUN colcon build && . install/setup.bash
 
 RUN sudo apt-get update
@@ -70,16 +65,16 @@ RUN sudo apt install ros-humble-xacro -y
 RUN sudo apt install ros-humble-controller-interface -y
 RUN sudo apt install ros-humble-controller-manager -y
 RUN sudo apt install ros-humble-ros2-control* -y
-RUN pip3 uninstall numpy -y && pip3 install numpy==1.26.4 -y
 
+RUN sudo apt update && sudo apt upgrade -y
+RUN pip3 uninstall numpy -y && pip3 install numpy==1.26.4
 
-# ocs2
-RUN mkdir /root/ocs2_ros2_ws
+# Go to /src
+RUN mkdir /root/src
+WORKDIR /root/src
+RUN cd /root
 
-##### Source ros2 workspaces
-RUN echo "source /root/ros2_docker_ws/install/setup.bash" >> ~/.bashrc
-RUN echo "source /root/ocs2_ros2_ws/install/setup.bash" >> ~/.bashrc
-
+# ros2 helpers
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
 
