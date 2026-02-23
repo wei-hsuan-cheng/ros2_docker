@@ -3,7 +3,7 @@
 ## Build image and run container
 
 ```bash
-docker build -t ros_humble_v1 .
+docker build -t ros_humble .
 chmod +x ros_humble.bash
 ./ros_humble.bash
 ```
