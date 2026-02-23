@@ -10,7 +10,7 @@ docker run -it \
     --env="XAUTHORITY=$XAUTH" \
     --volume="$XAUTH:$XAUTH" \
     --privileged \
-    ros_humble_v1 \
+    ros_humble \
     bash
 
 echo "Done."
