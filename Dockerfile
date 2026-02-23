@@ -65,9 +65,10 @@ RUN sudo apt install ros-humble-controller-manager -y
 RUN sudo apt install ros-humble-ros2-control* -y
 
 RUN sudo apt update && sudo apt upgrade -y
-RUN pip3 uninstall numpy -y && pip3 install numpy==1.26.4
+RUN pip3 uninstall numpy -y
+RUN pip3 install numpy==1.26.4
 
-RUN sudo apt install ros-humble-moveit*
+RUN sudo apt install ros-humble-moveit* -y
 
 # Go to /src
 RUN mkdir /root/src
