@@ -3,7 +3,7 @@ XAUTH=/tmp/.docker.xauth
 
 docker run -it \
     --name ros_humble \
-    -v /home/whcheng/src:/root/src \
+    -v ${HOME}/src:/root/src \
     --env="DISPLAY=$DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
     -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
