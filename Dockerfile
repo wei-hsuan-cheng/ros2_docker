@@ -69,6 +69,7 @@ RUN pip3 uninstall numpy -y
 RUN pip3 install numpy==1.26.4
 
 RUN sudo apt install ros-humble-moveit* -y
+RUN sudo apt install ros-humble-image-transport ros-humble-image-transport-plugins -y
 
 # Go to /src
 RUN mkdir /root/src
