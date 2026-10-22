@@ -1,4 +1,4 @@
-# The same container as ros_humble.bash, plus GPU access.
+# The ros_humble container, with GPU access.
 #
 #   docker compose build              # = docker build -t ros_humble .
 #   docker compose up -d              # create and start the container
@@ -20,7 +20,7 @@ services:
       QT_X11_NO_MITSHM: "1"
       XAUTHORITY: /tmp/.docker.xauth
     volumes:
-      # ~/src, as ros_humble.bash mounts it. On a Parallels VM, to build the Mac's
+      # ~/src. On a Parallels VM, to build the Mac's
       # code directly: SRC_DIR=/media/psf/Home/src docker compose up -d
       - ${SRC_DIR:-${HOME}/src}:/root/src
       - /tmp/.X11-unix:/tmp/.X11-unix:rw

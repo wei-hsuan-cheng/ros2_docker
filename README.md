@@ -2,7 +2,7 @@
 
 ## Build image and run container
 
-With Docker Compose (recommended):
+With Docker Compose:
 
 ```bash
 docker compose build                  # image ros_humble
@@ -10,17 +10,9 @@ docker compose up -d                  # container ros_humble
 docker compose exec ros_humble bash   # a shell in it (repeat for more terminals)
 ```
 
-Or with the plain script, which creates the same container without GPU passthrough:
+Compose mounts `~/src` at `/root/src`. To mount another folder with Compose, e.g. the Mac's `~/src` on a Parallels VM: `SRC_DIR=/media/psf/Home/src docker compose up -d`.
 
-```bash
-docker build -t ros_humble .
-chmod +x ros_humble.bash
-./ros_humble.bash
-```
-
-Both mount `~/src` at `/root/src`. To mount another folder with Compose, e.g. the Mac's `~/src` on a Parallels VM: `SRC_DIR=/media/psf/Home/src docker compose up -d`.
-
-Compose does not run `xhost` the way the script does, so allow root on the X server first (the `~/.bashrc` snippet below does this).
+Allow root on the X server before starting the container (the `~/.bashrc` snippet below does this).
 
 ### GPU
 
@@ -76,8 +68,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker compose start                  # or: docker start ros_humble
-docker compose exec ros_humble bash   # or: docker exec -it ros_humble bash
+docker compose start
+docker compose exec ros_humble bash
 ```
 
 Run `rviz2` to see if x11 display setting works well
