@@ -30,6 +30,8 @@ RUN sudo apt update && sudo apt install ros-jazzy-pcl* -y
 # numpy is pinned in the same call as opencv: Ubuntu 24.04 already ships
 # python3-numpy 1.26.4, and pinning it here stops pip from pulling numpy 2 in on
 # top of it, which the ROS Python packages are not built against.
+# flask upgrades blinker, which Ubuntu 24.04 ships as a debian package pip cannot uninstall
+RUN pip3 install --ignore-installed blinker
 RUN pip3 install \
     pyyaml \
     rospkg \
