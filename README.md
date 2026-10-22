@@ -16,21 +16,26 @@ Compose mounts the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) 
 
 Allow root on the X server before starting the container (the `~/.bashrc` snippet below does this).
 
-### GPU
+### GPU, per machine
 
-`docker-compose.yml` passes the host's DRM devices (`/dev/dri`) through, so Mesa renders on the GPU: virgl on a Parallels VM, the native driver on an Intel/AMD host. Check it from inside the container:
+The container is `privileged`, so it sees the host's `/dev/dri` (when there is one) and Mesa renders on the GPU. `ipc: host` lets Mesa hand frames to the X server through shared memory.
+
+| machine | build | start |
+|---|---|---|
+| Parallels VM on an Apple Silicon Mac (virgl GPU) | `docker compose -f ~/src/ros2_docker/docker-compose.yml build` | `docker compose -f ~/src/ros2_docker/docker-compose.yml up -d` |
+| Linux PC, Intel/AMD GPU | `PIN_MESA_FOR_VIRGL=false docker compose -f ~/src/ros2_docker/docker-compose.yml build` | `SRC_DIR=$HOME/src docker compose -f ~/src/ros2_docker/docker-compose.yml up -d` |
+| Linux PC, NVIDIA GPU | `PIN_MESA_FOR_VIRGL=false docker compose -f ~/src/ros2_docker/docker-compose.yml build` | `SRC_DIR=$HOME/src docker compose -f ~/src/ros2_docker/docker-compose.yml -f ~/src/ros2_docker/docker-compose.nvidia.yml up -d` |
+
+- **Parallels:** the image pins Mesa to 24.0.5 (`PIN_MESA_FOR_VIRGL`, on by default), because Mesa 25.x draws rviz2's 3D view black on virgl. Without the pin or without `ipc: host`, the rviz2 and MuJoCo windows open but stay black.
+- **Intel/AMD PC:** keep Ubuntu's latest Mesa. GPUs newer than mid-2024 (Intel Lunar Lake/Battlemage, AMD RX 9000) need it; older ones work either way.
+- **NVIDIA PC:** needs the NVIDIA driver and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) on the host. Check with `docker exec -it ros_jazzy nvidia-smi`.
+
+Check which renderer the container uses:
 
 ```bash
 apt install -y mesa-utils && glxinfo -B | grep "OpenGL renderer"
-# virgl (Apple M2 Pro ...)  -> GPU
-# llvmpipe                  -> software rendering on the CPU
-```
-
-On a host with an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), add the override file:
-
-```bash
-docker compose -f ~/src/ros2_docker/docker-compose.yml -f ~/src/ros2_docker/docker-compose.nvidia.yml up -d
-docker exec -it ros_jazzy nvidia-smi
+# virgl (Apple M2 Pro ...) / Intel / AMD / NVIDIA  -> GPU
+# llvmpipe                                        -> software rendering on the CPU
 ```
 
 ## X11 display setting 

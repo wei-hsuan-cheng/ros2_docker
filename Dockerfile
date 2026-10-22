@@ -88,4 +88,19 @@ WORKDIR /root
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
 
+# Mesa 25.x (noble-updates) renders rviz2's 3D view black on a virgl GPU (Parallels on
+# an Apple Silicon Mac), while Mesa 24.0.5 (noble release) works. Pin and hold it so apt
+# upgrade does not bring 25.x back. Turn it off on a PC with a GPU newer than mid-2024
+# (Intel Lunar Lake/Battlemage, AMD RX 9000), which needs the newer Mesa.
+ARG PIN_MESA_FOR_VIRGL=true
+RUN if [ "${PIN_MESA_FOR_VIRGL}" = "true" ]; then \
+    MESA=24.0.5-1ubuntu1 && apt-get update && apt-get install -y --allow-downgrades \
+      libgl1-mesa-dri=${MESA} libglx-mesa0=${MESA} libegl-mesa0=${MESA} \
+      libgbm1=${MESA} libglapi-mesa=${MESA} libgbm-dev=${MESA} \
+      libegl1-mesa-dev=${MESA} libgl1-mesa-dev=${MESA} \
+      mesa-va-drivers=${MESA} mesa-vdpau-drivers=${MESA} mesa-vulkan-drivers=${MESA} && \
+    apt-mark hold libgl1-mesa-dri libglx-mesa0 libegl-mesa0 libgbm1 libglapi-mesa \
+      libgbm-dev libegl1-mesa-dev libgl1-mesa-dev mesa-va-drivers mesa-vdpau-drivers mesa-vulkan-drivers; \
+  fi
+
 RUN echo "ALL Done"

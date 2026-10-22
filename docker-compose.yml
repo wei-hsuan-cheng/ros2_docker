@@ -7,13 +7,20 @@
 # NVIDIA GPU: add the override file, see docker-compose.nvidia.yml.
 services:
   ros_jazzy:
-    build: .
+    build:
+      context: .
+      args:
+        # true: Mesa 24.0.5 for a virgl GPU (Parallels). false: Ubuntu's latest Mesa.
+        PIN_MESA_FOR_VIRGL: ${PIN_MESA_FOR_VIRGL:-true}
     image: ros_jazzy
     container_name: ros_jazzy
     command: bash
     stdin_open: true   # -i
     tty: true          # -t
     privileged: true
+    # Mesa hands rendered frames to the X server through shared memory (MIT-SHM),
+    # which needs the host's IPC namespace; without it rviz/MuJoCo windows are black.
+    ipc: host
     network_mode: bridge   # docker run's default network, not a per-project one
     environment:
       DISPLAY: ${DISPLAY}
@@ -25,8 +32,6 @@ services:
       - ${SRC_DIR:-/media/psf/Home/src}:/root/src
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /tmp/.docker.xauth:/tmp/.docker.xauth
-    # GPU through the host's DRM devices, rendered by Mesa: virgl on a Parallels
-    # VM, the native driver on an Intel/AMD host. privileged already exposes
-    # /dev, but listing it keeps the GPU if privileged is ever dropped.
-    devices:
-      - /dev/dri:/dev/dri
+    # GPU: privileged exposes the host's /dev/dri (when it has one) to Mesa - virgl on
+    # a Parallels VM, the native driver on an Intel/AMD PC. NVIDIA: see
+    # docker-compose.nvidia.yml.
