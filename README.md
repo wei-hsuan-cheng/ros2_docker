@@ -4,15 +4,15 @@
 
 ROS 2 Jazzy on Ubuntu 24.04 (the `humble` branch has the Humble version).
 
-With Docker Compose:
+With Docker Compose. `-f` names the compose file, so these run from any directory; adjust the path to where this repo is cloned (on the Parallels VM: `/media/psf/Home/src/ros2_docker`).
 
 ```bash
-docker compose build                 # image ros_jazzy
-docker compose up -d                 # container ros_jazzy
-docker compose exec ros_jazzy bash   # a shell in it (repeat for more terminals)
+docker compose -f ~/src/ros2_docker/docker-compose.yml build   # image ros_jazzy
+docker compose -f ~/src/ros2_docker/docker-compose.yml up -d   # container ros_jazzy
+docker exec -it ros_jazzy bash   # a shell in it (repeat for more terminals)
 ```
 
-Compose mounts the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) at `/root/src`. On another host, point Compose at your source folder instead: `SRC_DIR=$HOME/src docker compose up -d`.
+Compose mounts the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) at `/root/src`. On another host, point Compose at your source folder instead: `SRC_DIR=$HOME/src docker compose -f ~/src/ros2_docker/docker-compose.yml up -d`.
 
 Allow root on the X server before starting the container (the `~/.bashrc` snippet below does this).
 
@@ -29,8 +29,8 @@ apt install -y mesa-utils && glxinfo -B | grep "OpenGL renderer"
 On a host with an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), add the override file:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
-docker compose exec ros_jazzy nvidia-smi
+docker compose -f ~/src/ros2_docker/docker-compose.yml -f ~/src/ros2_docker/docker-compose.nvidia.yml up -d
+docker exec -it ros_jazzy nvidia-smi
 ```
 
 ## X11 display setting 
@@ -70,8 +70,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker compose start
-docker compose exec ros_jazzy bash
+docker start ros_jazzy
+docker exec -it ros_jazzy bash
 ```
 
 Run `rviz2` to see if x11 display setting works well
