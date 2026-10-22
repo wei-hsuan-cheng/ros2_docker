@@ -4,13 +4,42 @@
 
 ROS 2 Jazzy on Ubuntu 24.04 (the `humble` branch has the Humble version).
 
+With Docker Compose (recommended):
+
+```bash
+docker compose build                 # image ros_jazzy
+docker compose up -d                 # container ros_jazzy
+docker compose exec ros_jazzy bash   # a shell in it (repeat for more terminals)
+```
+
+Or with the plain script, which creates the same container without GPU passthrough:
+
 ```bash
 docker build -t ros_jazzy .
 chmod +x ros_jazzy.bash
 ./ros_jazzy.bash
 ```
 
-On a Parallels VM, `ros_jazzy.bash` also mounts the Mac's `~/src` (shared as `/media/psf/Home/src`) at `/root/mac_src`.
+Both mount the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) at `/root/src`. On another host, point Compose at your source folder instead: `SRC_DIR=$HOME/src docker compose up -d`.
+
+Compose does not run `xhost` the way the script does, so allow root on the X server first (the `~/.bashrc` snippet below does this).
+
+### GPU
+
+`docker-compose.yml` passes the host's DRM devices (`/dev/dri`) through, so Mesa renders on the GPU: virgl on a Parallels VM, the native driver on an Intel/AMD host. Check it from inside the container:
+
+```bash
+apt install -y mesa-utils && glxinfo -B | grep "OpenGL renderer"
+# virgl (Apple M2 Pro ...)  -> GPU
+# llvmpipe                  -> software rendering on the CPU
+```
+
+On a host with an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), add the override file:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
+docker compose exec ros_jazzy nvidia-smi
+```
 
 ## X11 display setting 
 Copy and paste this snippet in `~/.bashrc`
@@ -49,8 +78,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker start ros_jazzy
-docker exec -it ros_jazzy bash
+docker compose start                 # or: docker start ros_jazzy
+docker compose exec ros_jazzy bash   # or: docker exec -it ros_jazzy bash
 ```
 
 Run `rviz2` to see if x11 display setting works well

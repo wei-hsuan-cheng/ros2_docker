@@ -1,0 +1,32 @@
+# The same container as ros_jazzy.bash, plus GPU access.
+#
+#   docker compose build              # = docker build -t ros_jazzy .
+#   docker compose up -d              # create and start the container
+#   docker compose exec ros_jazzy bash
+#
+# NVIDIA GPU: add the override file, see docker-compose.nvidia.yml.
+services:
+  ros_jazzy:
+    build: .
+    image: ros_jazzy
+    container_name: ros_jazzy
+    command: bash
+    stdin_open: true   # -i
+    tty: true          # -t
+    privileged: true
+    network_mode: bridge   # docker run's default network, not a per-project one
+    environment:
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      XAUTHORITY: /tmp/.docker.xauth
+    volumes:
+      # Code edited on the Mac (Parallels shares ~/src as /media/psf/Home/src).
+      # Elsewhere set SRC_DIR, e.g. SRC_DIR=$HOME/src docker compose up -d
+      - ${SRC_DIR:-/media/psf/Home/src}:/root/src
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth
+    # GPU through the host's DRM devices, rendered by Mesa: virgl on a Parallels
+    # VM, the native driver on an Intel/AMD host. privileged already exposes
+    # /dev, but listing it keeps the GPU if privileged is ever dropped.
+    devices:
+      - /dev/dri:/dev/dri

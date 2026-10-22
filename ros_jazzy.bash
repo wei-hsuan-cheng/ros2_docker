@@ -5,12 +5,11 @@ XAUTH=/tmp/.docker.xauth
 # so code edited on the Mac is built in the container directly.
 MAC_SRC_MOUNT=""
 if [ -d /media/psf/Home/src ]; then
-    MAC_SRC_MOUNT="-v /media/psf/Home/src:/root/mac_src"
+    MAC_SRC_MOUNT="-v /media/psf/Home/src:/root/src"
 fi
 
 docker run -it \
     --name ros_jazzy \
-    -v ${HOME}/src:/root/src \
     ${MAC_SRC_MOUNT} \
     --env="DISPLAY=$DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
