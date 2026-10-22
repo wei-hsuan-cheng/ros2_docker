@@ -1,4 +1,4 @@
-# The same container as ros_jazzy.bash, plus GPU access.
+# The ros_jazzy container, with GPU access.
 #
 #   docker compose build              # = docker build -t ros_jazzy .
 #   docker compose up -d              # create and start the container

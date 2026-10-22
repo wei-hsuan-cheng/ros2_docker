@@ -4,7 +4,7 @@
 
 ROS 2 Jazzy on Ubuntu 24.04 (the `humble` branch has the Humble version).
 
-With Docker Compose (recommended):
+With Docker Compose:
 
 ```bash
 docker compose build                 # image ros_jazzy
@@ -12,17 +12,9 @@ docker compose up -d                 # container ros_jazzy
 docker compose exec ros_jazzy bash   # a shell in it (repeat for more terminals)
 ```
 
-Or with the plain script, which creates the same container without GPU passthrough:
+Compose mounts the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) at `/root/src`. On another host, point Compose at your source folder instead: `SRC_DIR=$HOME/src docker compose up -d`.
 
-```bash
-docker build -t ros_jazzy .
-chmod +x ros_jazzy.bash
-./ros_jazzy.bash
-```
-
-Both mount the Mac's `~/src` (shared by Parallels as `/media/psf/Home/src`) at `/root/src`. On another host, point Compose at your source folder instead: `SRC_DIR=$HOME/src docker compose up -d`.
-
-Compose does not run `xhost` the way the script does, so allow root on the X server first (the `~/.bashrc` snippet below does this).
+Allow root on the X server before starting the container (the `~/.bashrc` snippet below does this).
 
 ### GPU
 
@@ -78,8 +70,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker compose start                 # or: docker start ros_jazzy
-docker compose exec ros_jazzy bash   # or: docker exec -it ros_jazzy bash
+docker compose start
+docker compose exec ros_jazzy bash
 ```
 
 Run `rviz2` to see if x11 display setting works well
