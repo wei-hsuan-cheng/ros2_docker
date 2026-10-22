@@ -1,8 +1,13 @@
 # Already tested in arm64 architecture
-FROM ros:humble-ros-base
+FROM ros:jazzy-ros-base
+
+# Ubuntu 24.04 marks the system Python as externally managed (PEP 668), so a
+# plain `pip3 install` is refused. This is a single-purpose container, so allow it.
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Update and install development tools
 RUN apt-get update && apt-get install -y \
+    sudo \
     git \
     wget \
     vim \
@@ -12,16 +17,19 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-colcon-common-extensions \
     python3-rosdep \
-    ros-humble-desktop \
+    ros-jazzy-desktop \
     ros-dev-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Initialize rosdep
 RUN rosdep update
-RUN . /opt/ros/humble/setup.sh
-RUN echo "source /opt/ros/humble/setup.sh" >> ~/.bashrc
+RUN . /opt/ros/jazzy/setup.sh
+RUN echo "source /opt/ros/jazzy/setup.sh" >> ~/.bashrc
 
-RUN sudo apt install ros-humble-pcl* -y
+RUN sudo apt update && sudo apt install ros-jazzy-pcl* -y
+# numpy is pinned in the same call as opencv: Ubuntu 24.04 already ships
+# python3-numpy 1.26.4, and pinning it here stops pip from pulling numpy 2 in on
+# top of it, which the ROS Python packages are not built against.
 RUN pip3 install \
     pyyaml \
     rospkg \
@@ -29,24 +37,25 @@ RUN pip3 install \
     opencv-contrib-python \
     flask \
     waitress \
-    numpy \
+    "numpy==1.26.4" \
     scipy \
     datetime \
     modern_robotics \
-    matplotlib 
+    matplotlib
 
 RUN apt-get update && apt-get install -y v4l-utils
-RUN sudo apt-get install libgstrtspserver-1.0 libgstreamer1.0-dev -y
-RUN sudo apt install ros-humble-spacenav -y
+RUN sudo apt-get install libgstrtspserver-1.0-dev libgstreamer1.0-dev -y
+RUN sudo apt install ros-jazzy-spacenav -y
 
 RUN sudo apt-get update
 
 RUN sudo apt install ros-$ROS_DISTRO-pcl* -y
 
-RUN sudo apt-get update && apt-get install -y libgl1-mesa-glx libgl1-mesa-dri x11-apps
+# libgl1-mesa-glx no longer exists on Ubuntu 24.04; libgl1 + libglx-mesa0 replace it
+RUN sudo apt-get update && apt-get install -y libgl1 libglx-mesa0 libgl1-mesa-dri x11-apps
 
 RUN pip3 install xacro
-RUN sudo apt install ros-humble-joint-state-publisher-gui -y
+RUN sudo apt install ros-jazzy-joint-state-publisher-gui -y
 
 RUN sudo apt-get install -y \
     ros-$ROS_DISTRO-grid-map-cv \
@@ -57,19 +66,17 @@ RUN sudo apt-get install -y \
     libglpk-dev
 
 RUN sudo apt-get install -y ros-$ROS_DISTRO-octomap
-RUN sudo apt install ros-humble-grid-map-rviz-plugin -y
-RUN sudo apt install ros-humble-grid-map* -y
-RUN sudo apt install ros-humble-xacro -y
-RUN sudo apt install ros-humble-controller-interface -y
-RUN sudo apt install ros-humble-controller-manager -y
-RUN sudo apt install ros-humble-ros2-control* -y
+RUN sudo apt install ros-jazzy-grid-map-rviz-plugin -y
+RUN sudo apt install ros-jazzy-grid-map* -y
+RUN sudo apt install ros-jazzy-xacro -y
+RUN sudo apt install ros-jazzy-controller-interface -y
+RUN sudo apt install ros-jazzy-controller-manager -y
+RUN sudo apt install ros-jazzy-ros2-control* -y
 
 RUN sudo apt update && sudo apt upgrade -y
-RUN pip3 uninstall numpy -y
-RUN pip3 install numpy==1.26.4
 
-RUN sudo apt install ros-humble-moveit* -y
-RUN sudo apt install ros-humble-image-transport ros-humble-image-transport-plugins -y
+RUN sudo apt install ros-jazzy-moveit* -y
+RUN sudo apt install ros-jazzy-image-transport ros-jazzy-image-transport-plugins -y
 
 # Go to /src
 RUN mkdir /root/src

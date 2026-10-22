@@ -2,11 +2,15 @@
 
 ## Build image and run container
 
+ROS 2 Jazzy on Ubuntu 24.04 (the `humble` branch has the Humble version).
+
 ```bash
-docker build -t ros_humble .
-chmod +x ros_humble.bash
-./ros_humble.bash
+docker build -t ros_jazzy .
+chmod +x ros_jazzy.bash
+./ros_jazzy.bash
 ```
+
+On a Parallels VM, `ros_jazzy.bash` also mounts the Mac's `~/src` (shared as `/media/psf/Home/src`) at `/root/mac_src`.
 
 ## X11 display setting 
 Copy and paste this snippet in `~/.bashrc`
@@ -45,8 +49,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker start ros_humble
-docker exec -it ros_humble bash
+docker start ros_jazzy
+docker exec -it ros_jazzy bash
 ```
 
 Run `rviz2` to see if x11 display setting works well
