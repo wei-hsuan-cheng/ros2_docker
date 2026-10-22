@@ -2,15 +2,15 @@
 
 ## Build image and run container
 
-With Docker Compose:
+With Docker Compose. `-f` names the compose file, so these run from any directory; adjust the path to where this repo is cloned (on the Parallels VM: `/media/psf/Home/src/ros2_docker`).
 
 ```bash
-docker compose build                  # image ros_humble
-docker compose up -d                  # container ros_humble
-docker compose exec ros_humble bash   # a shell in it (repeat for more terminals)
+docker compose -f ~/src/ros2_docker/docker-compose.yml build   # image ros_humble
+docker compose -f ~/src/ros2_docker/docker-compose.yml up -d   # container ros_humble
+docker exec -it ros_humble bash   # a shell in it (repeat for more terminals)
 ```
 
-Compose mounts `~/src` at `/root/src`. To mount another folder with Compose, e.g. the Mac's `~/src` on a Parallels VM: `SRC_DIR=/media/psf/Home/src docker compose up -d`.
+Compose mounts `~/src` at `/root/src`. To mount another folder with Compose, e.g. the Mac's `~/src` on a Parallels VM: `SRC_DIR=/media/psf/Home/src docker compose -f ~/src/ros2_docker/docker-compose.yml up -d`.
 
 Allow root on the X server before starting the container (the `~/.bashrc` snippet below does this).
 
@@ -27,8 +27,8 @@ apt install -y mesa-utils && glxinfo -B | grep "OpenGL renderer"
 On a host with an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), add the override file:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
-docker compose exec ros_humble nvidia-smi
+docker compose -f ~/src/ros2_docker/docker-compose.yml -f ~/src/ros2_docker/docker-compose.nvidia.yml up -d
+docker exec -it ros_humble nvidia-smi
 ```
 
 ## X11 display setting 
@@ -68,8 +68,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker compose start
-docker compose exec ros_humble bash
+docker start ros_humble
+docker exec -it ros_humble bash
 ```
 
 Run `rviz2` to see if x11 display setting works well
