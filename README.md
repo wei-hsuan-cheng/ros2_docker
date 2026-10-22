@@ -2,10 +2,41 @@
 
 ## Build image and run container
 
+With Docker Compose (recommended):
+
+```bash
+docker compose build                  # image ros_humble
+docker compose up -d                  # container ros_humble
+docker compose exec ros_humble bash   # a shell in it (repeat for more terminals)
+```
+
+Or with the plain script, which creates the same container without GPU passthrough:
+
 ```bash
 docker build -t ros_humble .
 chmod +x ros_humble.bash
 ./ros_humble.bash
+```
+
+Both mount `~/src` at `/root/src`. To mount another folder with Compose, e.g. the Mac's `~/src` on a Parallels VM: `SRC_DIR=/media/psf/Home/src docker compose up -d`.
+
+Compose does not run `xhost` the way the script does, so allow root on the X server first (the `~/.bashrc` snippet below does this).
+
+### GPU
+
+`docker-compose.yml` passes the host's DRM devices (`/dev/dri`) through, so Mesa renders on the GPU: virgl on a Parallels VM, the native driver on an Intel/AMD host. Check it from inside the container:
+
+```bash
+apt install -y mesa-utils && glxinfo -B | grep "OpenGL renderer"
+# virgl (Apple M2 Pro ...)  -> GPU
+# llvmpipe                  -> software rendering on the CPU
+```
+
+On a host with an NVIDIA GPU and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html), add the override file:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
+docker compose exec ros_humble nvidia-smi
 ```
 
 ## X11 display setting 
@@ -45,8 +76,8 @@ fi
 Start container / open a new terminal of the container
 
 ```bash
-docker start ros_humble
-docker exec -it ros_humble bash
+docker compose start                  # or: docker start ros_humble
+docker compose exec ros_humble bash   # or: docker exec -it ros_humble bash
 ```
 
 Run `rviz2` to see if x11 display setting works well

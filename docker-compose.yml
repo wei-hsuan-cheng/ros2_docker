@@ -1,0 +1,32 @@
+# The same container as ros_humble.bash, plus GPU access.
+#
+#   docker compose build              # = docker build -t ros_humble .
+#   docker compose up -d              # create and start the container
+#   docker compose exec ros_humble bash
+#
+# NVIDIA GPU: add the override file, see docker-compose.nvidia.yml.
+services:
+  ros_humble:
+    build: .
+    image: ros_humble
+    container_name: ros_humble
+    command: bash
+    stdin_open: true   # -i
+    tty: true          # -t
+    privileged: true
+    network_mode: bridge   # docker run's default network, not a per-project one
+    environment:
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      XAUTHORITY: /tmp/.docker.xauth
+    volumes:
+      # ~/src, as ros_humble.bash mounts it. On a Parallels VM, to build the Mac's
+      # code directly: SRC_DIR=/media/psf/Home/src docker compose up -d
+      - ${SRC_DIR:-${HOME}/src}:/root/src
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth
+    # GPU through the host's DRM devices, rendered by Mesa: virgl on a Parallels
+    # VM, the native driver on an Intel/AMD host. privileged already exposes
+    # /dev, but listing it keeps the GPU if privileged is ever dropped.
+    devices:
+      - /dev/dri:/dev/dri
